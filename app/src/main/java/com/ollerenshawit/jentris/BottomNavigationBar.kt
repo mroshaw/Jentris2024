@@ -22,12 +22,18 @@ fun BottomNavigationBar() {
     Scaffold(
         modifier = Modifier.fillMaxSize(),
         bottomBar = {
-            NavigationBar {
+            NavigationBar (
+                containerColor = MaterialTheme.colorScheme.background,
+                contentColor = MaterialTheme.colorScheme.contentColorFor(MaterialTheme.colorScheme.background)
+            ){
                 BottomNavigationItem().bottomNavigationItems().forEachIndexed { _, navigationItem ->
                     NavigationBarItem(
                         selected = navigationItem.route == currentDestination?.route,
                         label = {
-                            Text(navigationItem.label)
+                            Text(text = navigationItem.label,
+                                style = MaterialTheme.typography.labelSmall,
+                                color = MaterialTheme.colorScheme.contentColorFor(MaterialTheme.colorScheme.background)
+                                )
                         },
                         icon = {
                             Icon(
