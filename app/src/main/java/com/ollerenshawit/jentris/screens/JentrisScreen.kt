@@ -2,9 +2,11 @@ package com.ollerenshawit.jentris.screens
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
@@ -18,17 +20,13 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.text.AnnotatedString
-import androidx.compose.ui.text.ParagraphStyle
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextDecoration
-import androidx.compose.ui.text.style.TextIndent
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.ollerenshawit.jentris.R
 import com.ollerenshawit.jentris.ui.theme.JentrisTheme
@@ -100,8 +98,12 @@ fun ShowAboutJentrisContent() {
     }
 
     Column(
-        modifier = Modifier.padding(16.dp)
-            .verticalScroll(rememberScrollState())) {
+        modifier = Modifier
+            .padding(16.dp)
+            .verticalScroll(rememberScrollState())
+    ) {
+        ShowTitleBox("About Jentris")
+        Spacer(modifier = Modifier.size(20.dp))
         Text(
             text = buildAnnotatedString
             {
@@ -110,7 +112,7 @@ fun ShowAboutJentrisContent() {
                 append(", Scotland. Six young undergraduates from across the UK met one fateful day in ")
                 append(jentrisBold)
                 append(" on South Street, for a Friday afternoon drink:\n")
-                append(CreateListString(items = jBoysList, isNumbered = false))
+                append(createListString(items = jBoysList, isNumbered = false))
                 append("\nAnd so the ")
                 append(jentrisBoysBold)
                 append(" were formed and to this very day their goal to bring peace and unity to drinkers across the world remains true.")
@@ -126,30 +128,5 @@ fun ShowAboutJentrisContent() {
                 .clip(shape = RoundedCornerShape(8.dp))
         )
     }
-
 }
 
-fun CreateListString(isNumbered : Boolean, items : List<String>): AnnotatedString {
-    val bullet = "\u2022"
-
-    val paragraphStyle = ParagraphStyle(textIndent = TextIndent(restLine = 12.sp))
-    val annotatedListString =
-        buildAnnotatedString {
-            items.forEachIndexed() { index, element ->
-                withStyle(style = paragraphStyle) {
-                    if(isNumbered) {
-                        append((index + 1).toString())
-                        append(".")
-                    }
-                    else
-                    {
-                        append(bullet)
-
-                    }
-                    append("\t\t")
-                    append(element)
-                }
-            }
-        }
-    return annotatedListString
-}

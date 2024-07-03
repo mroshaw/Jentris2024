@@ -6,7 +6,7 @@ import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Place
 import androidx.compose.ui.graphics.vector.ImageVector
 
-sealed class Screens(val route : String) {
+sealed class Screens(val route: String) {
     object Home : Screens("home_route")
     object AboutJDay : Screens("aboutjday_route")
     object AboutJentris : Screens("aboutjentris_route")
@@ -14,13 +14,13 @@ sealed class Screens(val route : String) {
 
 //initializing the data class with default parameters
 data class BottomNavigationItem(
-    val label : String = "",
-    val icon : ImageVector = Icons.Filled.Home,
-    val route : String = ""
+    val label: String = "",
+    val icon: ImageVector = Icons.Filled.Home,
+    val route: String = ""
 ) {
 
     //function to get the list of bottomNavigationItems
-    fun bottomNavigationItems() : List<BottomNavigationItem> {
+    fun bottomNavigationItems(): List<BottomNavigationItem> {
         return listOf(
             BottomNavigationItem(
                 label = "Home",

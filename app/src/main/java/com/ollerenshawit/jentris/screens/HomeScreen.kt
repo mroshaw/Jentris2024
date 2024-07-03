@@ -1,3 +1,5 @@
+@file:OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3Api::class)
+
 package com.ollerenshawit.jentris.screens
 
 import androidx.compose.animation.core.RepeatMode
@@ -16,18 +18,28 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.contentColorFor
+import androidx.compose.material3.pulltorefresh.PullToRefreshContainer
+import androidx.compose.material3.pulltorefresh.rememberPullToRefreshState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.TransformOrigin
 import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
@@ -38,6 +50,7 @@ import com.ollerenshawit.jentris.formatLocalDateToString
 import com.ollerenshawit.jentris.getNextJday
 import com.ollerenshawit.jentris.getSleepsBetweenDates
 import com.ollerenshawit.jentris.ui.theme.JentrisTheme
+import kotlinx.coroutines.delay
 import java.time.LocalDate
 
 @Composable
@@ -47,7 +60,9 @@ fun HomeScreen(navController: NavController) {
             modifier = Modifier.fillMaxSize(),
             color = MaterialTheme.colorScheme.background
         ) {
-            CalculateAndShowJentris()
+            ShowMainContent(
+                modifier = Modifier
+            )
         }
     }
 }
@@ -57,51 +72,74 @@ fun HomeScreen(navController: NavController) {
 fun HomeScreenPreview() {
     JentrisTheme {
         Surface(modifier = Modifier.fillMaxSize(), color = MaterialTheme.colorScheme.background) {
-            CalculateAndShowJentris()
+            ShowMainContent(
+                modifier = Modifier
+            )
         }
     }
 }
 
 @Composable
-fun CalculateAndShowJentris(modifier: Modifier = Modifier) {
-    val currentDateFormatted = formatLocalDateToString(LocalDate.now())
-    val jdayDateFormatted = formatLocalDateToString(getNextJday())
-    val numSleeps = getSleepsBetweenDates(LocalDate.now(), getNextJday())
+fun ShowMainContent(
+    modifier: Modifier = Modifier
+) {
 
-    val numSleepsText: String = if(numSleeps == 0) {
-        "Happy J Day!"
-    }
-    else {
-        numSleeps.toString()
+    var currentDateFormatted by remember {
+        mutableStateOf(formatLocalDateToString(LocalDate.now()))
     }
 
-    ShowMainContent(currentDateFormatted = currentDateFormatted,
-        jdayDateFormatted = jdayDateFormatted,
-        numSleepsText = numSleepsText,
-        modifier = modifier
-    )
+    var jdayDateFormatted by remember {
+        mutableStateOf(formatLocalDateToString(getNextJday()))
+    }
+
+    var numSleeps by remember {
+        mutableIntStateOf(getSleepsBetweenDates(LocalDate.now(), getNextJday()))
+    }
+
+    val pullRefreshState = rememberPullToRefreshState()
+    if (pullRefreshState.isRefreshing) {
+        LaunchedEffect(true) {
+            delay(1000)
+            currentDateFormatted = formatLocalDateToString(LocalDate.now())
+            jdayDateFormatted = formatLocalDateToString(getNextJday())
+            numSleeps = getSleepsBetweenDates(LocalDate.now(), getNextJday())
+            pullRefreshState.endRefresh()
+        }
+    }
+
+    Box(Modifier.nestedScroll(pullRefreshState.nestedScrollConnection)) {
+
+        LazyColumn(
+            verticalArrangement = Arrangement.Center,
+            horizontalAlignment = Alignment.CenterHorizontally,
+            modifier = modifier.padding(8.dp)
+        ) {
+            item {
+                // Today's date box
+                ShowDateContent(titleText = "Today is:", formattedDateString = currentDateFormatted)
+                Spacer(modifier = Modifier.size(30.dp))
+                // Number of sleeps box
+                ShowSleepsContent(numSleeps = numSleeps)
+                // Next J Day Box
+                ShowDateContent(
+                    titleText = "Next J Day is:",
+                    formattedDateString = jdayDateFormatted
+                )
+            }
+        }
+        if (pullRefreshState.progress > 0 || pullRefreshState.isRefreshing) {
+            PullToRefreshContainer(
+                modifier = Modifier.align(Alignment.TopCenter),
+                state = pullRefreshState,
+            )
+        }
+    }
 }
 
 @Composable
-fun ShowMainContent(currentDateFormatted: String, jdayDateFormatted: String, numSleepsText: String, modifier: Modifier = Modifier) {
-    Column (
-        verticalArrangement = Arrangement.Center,
-        horizontalAlignment = Alignment.CenterHorizontally,
-        modifier = modifier.padding(8.dp)
-    ){
-        // Today's date box
-        ShowDateContent(titleText = "Today is:", formattedDateString = currentDateFormatted)
-        Spacer(modifier = Modifier.size(30.dp))
-        // Number of sleeps box
-        ShowSleepsContent(numSleepsText = numSleepsText)
-        // Next J Day Box
-        ShowDateContent(titleText = "Next J Day is:", formattedDateString = jdayDateFormatted)
-    }
-}
+fun ShowSleepsContent(numSleeps: Int, modifier: Modifier = Modifier) {
 
-@Composable
-fun ShowSleepsContent(numSleepsText: String, modifier: Modifier = Modifier) {
-
+    val isTesting = false
     val infiniteTransition = rememberInfiniteTransition(label = "infinite transition")
     val scale by infiniteTransition.animateFloat(
         initialValue = 1f,
@@ -144,49 +182,52 @@ fun ShowSleepsContent(numSleepsText: String, modifier: Modifier = Modifier) {
                         .fillMaxSize()
                         .clip(shape = RoundedCornerShape(8.dp))
                 )
-
-                Text(
-                    text = numSleepsText,
-                    modifier = Modifier
-                        .graphicsLayer {
-                            scaleX = scale
-                            scaleY = scale
-                            transformOrigin = TransformOrigin.Center}
-                        .align(Alignment.Center),
-                    style = MaterialTheme.typography.titleLarge,
-                    textAlign = TextAlign.Center,
-                )
+                // If numSleeps is 0, then it's J DAY!
+                if (numSleeps == 0 || isTesting) {
+                    MultiColorSmoothText(
+                        duration = 1200,
+                        text = "Happy\nJ Day!",
+                        modifier = Modifier
+                            .graphicsLayer {
+                                scaleX = scale
+                                scaleY = scale
+                                transformOrigin = TransformOrigin.Center
+                            }
+                            //.fillMaxWidth()
+                            .align(Alignment.Center),
+                        style = MaterialTheme.typography.titleMedium,
+                    )
+                    /*
+                    Text(
+                        text = "Happy\nJ Day!",
+                        modifier = Modifier
+                            .graphicsLayer {
+                                scaleX = scale
+                                scaleY = scale
+                                transformOrigin = TransformOrigin.Center
+                            }
+                            .align(Alignment.Center),
+                        style = MaterialTheme.typography.titleMedium,
+                        textAlign = TextAlign.Center,
+                    )
+                     */
+                } else {
+                    Text(
+                        text = numSleeps.toString(),
+                        modifier = Modifier
+                            .graphicsLayer {
+                                scaleX = scale
+                                scaleY = scale
+                                transformOrigin = TransformOrigin.Center
+                            }
+                            .align(Alignment.Center),
+                        style = MaterialTheme.typography.titleLarge,
+                        textAlign = TextAlign.Center,
+                    )
+                }
             }
         }
     }
 }
 
-@Composable
-fun ShowDateContent(titleText: String, formattedDateString: String, modifier: Modifier = Modifier) {
-    Box(
-        modifier = modifier
-            .height(100.dp)
-            .fillMaxWidth()
-            .background(MaterialTheme.colorScheme.primary, shape = RoundedCornerShape(8.dp)),
-        contentAlignment = Alignment.Center
-    ) {
-        Column(
-            verticalArrangement = Arrangement.Center,
-            horizontalAlignment = Alignment.CenterHorizontally,
-        ) {
-            Text(
-                text = titleText,
-                style = MaterialTheme.typography.bodyLarge,
-                color = contentColorFor(MaterialTheme.colorScheme.primary),
-                textAlign = TextAlign.Center,
-            )
-            Text(
-                text = formattedDateString,
-                style = MaterialTheme.typography.headlineMedium,
-                color = contentColorFor(MaterialTheme.colorScheme.primary),
-                textAlign = TextAlign.Center,
-            )
-        }
-    }
-}
 

@@ -32,6 +32,14 @@ val Typography = Typography(
         lineHeight = 125.sp,
         letterSpacing = 0.5.sp
     ),
+    // Happy J
+    titleMedium = TextStyle(
+        fontFamily = FontFamily.Serif,
+        fontWeight = FontWeight.SemiBold,
+        fontSize = 72.sp,
+        lineHeight = 76.sp,
+        letterSpacing = 0.1.sp
+    ),
 
 
     labelSmall = TextStyle(
