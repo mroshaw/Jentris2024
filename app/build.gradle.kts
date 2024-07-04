@@ -23,6 +23,15 @@ android {
     buildTypes {
         release {
             isMinifyEnabled = false
+            applicationVariants.all {
+                val variant = this
+                variant.outputs
+                    .map { it as com.android.build.gradle.internal.api.BaseVariantOutputImpl }
+                    .forEach { output ->
+                        val outputFileName = "jentris-${variant.baseName}-${variant.versionName}-${variant.versionCode}.apk"
+                        output.outputFileName = outputFileName
+                    }
+            }
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
@@ -59,6 +68,9 @@ dependencies {
     implementation(libs.androidx.ui.tooling.preview)
     implementation(libs.androidx.material3)
     implementation(libs.androidx.navigation.compose)
+    implementation(files("E:\\Dev\\Android\\Konfetti\\konfetti\\compose\\build\\outputs\\aar\\konfetti-compose-release.aar"))
+    implementation(files("E:\\Dev\\Android\\Konfetti\\konfetti\\core\\build\\libs\\konfetti-core.jar"))
+    implementation(libs.androidx.runtime.livedata)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)

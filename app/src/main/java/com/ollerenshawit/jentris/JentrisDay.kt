@@ -12,7 +12,7 @@ fun getNextJday(): LocalDate {
 
     val firstFridayThisYear = getFirstFridayInNovember(todayDate.year)
 
-    return if (firstFridayThisYear >= todayDate) {
+    return if (firstFridayThisYear > todayDate) {
         firstFridayThisYear
     } else {
         (getFirstFridayInNovember(todayDate.year + 1))

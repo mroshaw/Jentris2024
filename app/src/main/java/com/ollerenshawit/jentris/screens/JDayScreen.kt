@@ -74,17 +74,17 @@ fun ShowJDayContent(modifier: Modifier = Modifier) {
     }
 
     val goalsList = listOf(
-        "Drink",
-        "That is all"
+        "Drink.",
+        "That is all."
     )
 
     val agendaList = listOf(
-        "Golf on The Balgove",
-        "Beers and lunch at a venue of your choosing",
-        "Drinks at Hams Hame",
-        "Eat rubbish soup and steak",
-        "Awards and general abuse",
-        "Oblivion"
+        "Golf on The Balgove.",
+        "Beers and lunch at a venue of your choosing.",
+        "Drinks at Hams Hame.",
+        "Eat rubbish soup and steak.",
+        "Awards and general abuse.",
+        "Oblivion."
     )
     Column(
         modifier = Modifier
@@ -101,11 +101,11 @@ fun ShowJDayContent(modifier: Modifier = Modifier) {
                 append(createListString(false, goalsList))
                 append("\nIt is also commonly known as ")
                 append(jdaybold)
-                append(".\nIn keeping with tradition, ")
+                append(". In keeping with tradition, ")
                 append(jentrisdaybold)
                 append(" occurs each year on the first Friday of November.\n\nThe day pans out as follows:\n")
                 append(createListString(true, agendaList))
-                append("\n")
+                append("\nDig in, Jents!\n")
             })
         Image(
             painter = painterResource(id = R.drawable.jentris),

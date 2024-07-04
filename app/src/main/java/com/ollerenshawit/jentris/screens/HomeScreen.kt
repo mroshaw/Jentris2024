@@ -49,8 +49,10 @@ import com.ollerenshawit.jentris.R
 import com.ollerenshawit.jentris.formatLocalDateToString
 import com.ollerenshawit.jentris.getNextJday
 import com.ollerenshawit.jentris.getSleepsBetweenDates
+import com.ollerenshawit.jentris.konfetti.KonfettiPresets
 import com.ollerenshawit.jentris.ui.theme.JentrisTheme
 import kotlinx.coroutines.delay
+import nl.dionsegijn.konfetti.compose.KonfettiView
 import java.time.LocalDate
 
 @Composable
@@ -184,33 +186,16 @@ fun ShowSleepsContent(numSleeps: Int, modifier: Modifier = Modifier) {
                 )
                 // If numSleeps is 0, then it's J DAY!
                 if (numSleeps == 0 || isTesting) {
+                    KonfettiView(
+                        modifier = Modifier.fillMaxSize(),
+                        parties = KonfettiPresets.parade(),
+                    )
                     MultiColorSmoothText(
                         duration = 1200,
                         text = "Happy\nJ Day!",
-                        modifier = Modifier
-                            .graphicsLayer {
-                                scaleX = scale
-                                scaleY = scale
-                                transformOrigin = TransformOrigin.Center
-                            }
-                            //.fillMaxWidth()
-                            .align(Alignment.Center),
+                        modifier = Modifier,
                         style = MaterialTheme.typography.titleMedium,
                     )
-                    /*
-                    Text(
-                        text = "Happy\nJ Day!",
-                        modifier = Modifier
-                            .graphicsLayer {
-                                scaleX = scale
-                                scaleY = scale
-                                transformOrigin = TransformOrigin.Center
-                            }
-                            .align(Alignment.Center),
-                        style = MaterialTheme.typography.titleMedium,
-                        textAlign = TextAlign.Center,
-                    )
-                     */
                 } else {
                     Text(
                         text = numSleeps.toString(),
@@ -229,5 +214,3 @@ fun ShowSleepsContent(numSleeps: Int, modifier: Modifier = Modifier) {
         }
     }
 }
-
-
