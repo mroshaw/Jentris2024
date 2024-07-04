@@ -7,12 +7,12 @@ import java.time.temporal.ChronoUnit
 import java.util.Locale
 
 /* Returns the next 'first Friday in November' as the day of J */
-fun getNextJday(): LocalDate {
+fun getNextJday(ignoreToday: Boolean): LocalDate {
     val todayDate = LocalDate.now()
 
     val firstFridayThisYear = getFirstFridayInNovember(todayDate.year)
 
-    return if (firstFridayThisYear > todayDate) {
+    return if (firstFridayThisYear > todayDate || (firstFridayThisYear == todayDate && ignoreToday)) {
         firstFridayThisYear
     } else {
         (getFirstFridayInNovember(todayDate.year + 1))

@@ -15,7 +15,7 @@ import com.ollerenshawit.jentris.ui.theme.JentrisTheme
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        enableEdgeToEdge()
+        // enableEdgeToEdge()
         setContent {
             JentrisTheme {
                 Surface(

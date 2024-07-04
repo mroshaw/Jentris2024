@@ -2,6 +2,7 @@
 
 package com.ollerenshawit.jentris.screens
 
+import android.media.MediaPlayer
 import androidx.compose.animation.core.RepeatMode
 import androidx.compose.animation.core.animateFloat
 import androidx.compose.animation.core.infiniteRepeatable
@@ -40,6 +41,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.TransformOrigin
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.input.nestedscroll.nestedScroll
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
@@ -85,32 +87,38 @@ fun HomeScreenPreview() {
 fun ShowMainContent(
     modifier: Modifier = Modifier
 ) {
-
-    var currentDateFormatted by remember {
-        mutableStateOf(formatLocalDateToString(LocalDate.now()))
+    var currentDate by remember {
+        mutableStateOf(LocalDate.now())
     }
 
-    var jdayDateFormatted by remember {
-        mutableStateOf(formatLocalDateToString(getNextJday()))
+    var jdayDate by remember {
+        mutableStateOf(getNextJday(true))
+    }
+
+    var nextJdayDate by remember {
+        mutableStateOf(getNextJday(false))
     }
 
     var numSleeps by remember {
-        mutableIntStateOf(getSleepsBetweenDates(LocalDate.now(), getNextJday()))
+        mutableIntStateOf(getSleepsBetweenDates(currentDate, jdayDate))
     }
 
     val pullRefreshState = rememberPullToRefreshState()
+
     if (pullRefreshState.isRefreshing) {
         LaunchedEffect(true) {
             delay(1000)
-            currentDateFormatted = formatLocalDateToString(LocalDate.now())
-            jdayDateFormatted = formatLocalDateToString(getNextJday())
-            numSleeps = getSleepsBetweenDates(LocalDate.now(), getNextJday())
+            currentDate = LocalDate.now()
+            jdayDate = getNextJday(true)
+            nextJdayDate = getNextJday(false)
+            numSleeps = getSleepsBetweenDates(currentDate, jdayDate)
             pullRefreshState.endRefresh()
         }
     }
 
-    Box(Modifier.nestedScroll(pullRefreshState.nestedScrollConnection)) {
-
+    Box(
+        contentAlignment = Alignment.Center,
+        modifier = Modifier.nestedScroll(pullRefreshState.nestedScrollConnection)) {
         LazyColumn(
             verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.CenterHorizontally,
@@ -118,15 +126,26 @@ fun ShowMainContent(
         ) {
             item {
                 // Today's date box
-                ShowDateContent(titleText = "Today is:", formattedDateString = currentDateFormatted)
+                ShowDateContent(titleText = "Today is:", formattedDateString = formatLocalDateToString(currentDate))
                 Spacer(modifier = Modifier.size(30.dp))
                 // Number of sleeps box
                 ShowSleepsContent(numSleeps = numSleeps)
                 // Next J Day Box
-                ShowDateContent(
-                    titleText = "Next J Day is:",
-                    formattedDateString = jdayDateFormatted
-                )
+                if(numSleeps != 0)
+                {
+                    ShowDateContent(
+                        titleText = "Next J Day is:",
+                        formattedDateString = formatLocalDateToString(jdayDate)
+                    )
+                }
+                else
+                {
+                    ShowDateContent(
+                        titleText = "Next J Day is:",
+                        formattedDateString = formatLocalDateToString(nextJdayDate)
+                    )
+
+                }
             }
         }
         if (pullRefreshState.progress > 0 || pullRefreshState.isRefreshing) {
@@ -140,7 +159,6 @@ fun ShowMainContent(
 
 @Composable
 fun ShowSleepsContent(numSleeps: Int, modifier: Modifier = Modifier) {
-
     val isTesting = false
     val infiniteTransition = rememberInfiniteTransition(label = "infinite transition")
     val scale by infiniteTransition.animateFloat(
@@ -196,6 +214,12 @@ fun ShowSleepsContent(numSleeps: Int, modifier: Modifier = Modifier) {
                         modifier = Modifier,
                         style = MaterialTheme.typography.titleMedium,
                     )
+                    // Play Woo hoo!
+                    val mediaPlayer = MediaPlayer.create(LocalContext.current , R.raw.yay_clip)
+                    if(!mediaPlayer.isPlaying) {
+                        mediaPlayer.start()
+                    }
+
                 } else {
                     Text(
                         text = numSleeps.toString(),
